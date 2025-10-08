@@ -473,7 +473,11 @@ class PyInstallerGUI:
             return
 
         # иначе — запускаем .py
-        runner = self._get_runner(self.opts.arch)
+        try:
+            runner = self._get_runner(self.opts.arch)
+        except FileNotFoundError as e:
+            self._show_error(str(e))
+            return
         cmd = runner + [self.opts.py_file]
         self._append_log(f"[Запуск .py] {' '.join(cmd)}\n")
         try:
@@ -575,6 +579,7 @@ class PyInstallerGUI:
         self.progress.stop()
         self.cancel_btn.configure(state="disabled")
         self._lock_controls(False)
+        self.process = None
         if err:
             self._show_error(err)
             return
